@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_extra_sales_tax_report" 
+                name="Reportes Argentinos" 
+                parent="l10n_ar.account_reports_ar_statements_menu" 
+                action="action_extra_sales_tax_report" 
+                sequence="100" />
+
+</odoo>

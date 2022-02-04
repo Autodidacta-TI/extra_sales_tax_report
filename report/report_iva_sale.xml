@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_iva_sale" name="Report Iva Sale">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+                    <!-- Vals total-->
+                    
+                    <t t-set="total_neto" t-value="0"/>
+                    <t t-set="total_imp_int" t-value="0"/>
+                    <t t-set="total_iva" t-value="0"/>
+                    <t t-set="total_exento" t-value="0"/>
+                    
+                    <div class="text-center">
+                        <h3>Impuestos por categoria</h3>
+                        <h4 class="text-right"><span t-esc="from_data['date_from']"/> al <span t-esc="from_data['date_to']"/></h4>
+                    </div>
+                    <br/>
+                    <table class="table table-bordered mt32" style="font-size:15px">
+                        <thead>
+                            <tr>
+                                <th name="th_fecha" class="text-left">
+                                    <span>Categoria</span>
+                                </th>
+                                <th name="th_comprobante" class="text-left">
+                                    <span>Neto</span>
+                                </th>
+                                <th name="th_rsocial" class="text-left">
+                                    <span>Imp. Int.</span>
+                                </th>
+                                <th name="th_categoria" class="text-left">
+                                    <span>IVA</span>
+                                </th>
+                                <th name="th_doc" class="text-left">
+                                    <span>Exento</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <t t-foreach="categories" t-as="i">
+                            <tr >
+                                <td>
+                                    <span t-esc="i['categoria']"/>
+                                </td>
+                                <td>
+                                    $<span t-esc="'{:,.2f}'.format(i['Neto'])"/>
+                                    <t t-set="total_neto" t-value="total_neto + i['Neto']"/>
+                                </td>
+                                <td>
+                                    $<span t-esc="'{:,.2f}'.format(i['Imp. Int'])"/>
+                                    <t t-set="total_imp_int" t-value="total_imp_int + i['Imp. Int']"/>
+                                </td>
+                                <td>
+                                    $<span t-esc="'{:,.2f}'.format(i['Iva'])"/>
+                                    <t t-set="total_iva" t-value="total_iva + i['Iva']"/>
+                                </td>
+                                <td>
+                                    $<span t-esc="'{:,.2f}'.format(i['Exento'])"/>
+                                    <t t-set="total_exento" t-value="total_exento + i['Exento']"/>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr >
+                            <td>
+                            </td>
+                            <td>
+                                $<span t-esc="'{:,.2f}'.format(total_neto)"/>
+                            </td>
+                            <td>
+                                $<span t-esc="'{:,.2f}'.format(total_imp_int)"/>
+                            </td>
+                            <td>
+                                $<span t-esc="'{:,.2f}'.format(total_iva)"/>
+                            </td>
+                            <td>
+                                $<span t-esc="'{:,.2f}'.format(total_exento)"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

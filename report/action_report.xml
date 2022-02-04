@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_iva_sale" model="ir.actions.report">
+        <field name="name">Reporte Extra Iva Ventas </field>
+        <field name="model">ar.extra.sales.tax.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">extra_sales_tax_report.report_iva_sale</field>
+        <field name="report_file">extra_sales_tax_report.report_iva_sale</field>
+        <field name="binding_model_id" ref="model_ar_extra_sales_tax_report"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>
