@@ -39,7 +39,7 @@ class ExtraSalesTaxReports(models.TransientModel):
                             #Calculo de imp int si es porcentaje
                             if tax.amount_type == 'percent':
                                 if tax.price_include:
-                                    _impInt += il.price_subtotal / ((tax.amount /100) + 1)
+                                    _impInt += il.price_subtotal - (il.price_subtotal / ((tax.amount /100) + 1))
                                 else:
                                     _impInt += il.price_subtotal * (tax.amount /100)
                             #Calculo de imp int si es fijo
