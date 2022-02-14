@@ -57,20 +57,33 @@ class ExtraSalesTaxReports(models.TransientModel):
 
                     
 
+                    # Se obtiene categoria principal del producto
+                    i = 0
+                    _categ_tmp = self.env['product.category'].search([('id','=',il.product_id.categ_id.id)])
+                    while i == 0 and _categ_tmp.name != False:
+                        if not _categ_tmp.parent_id.name == False:
+                            if _categ_tmp.parent_id.parent_id.name == False:
+                                i = 1
+                            else:
+                                _categ_tmp = self.env['product.category'].search([('id','=',_categ_tmp.parent_id.id)])
+                        else:
+                            i = 1
+
+
                     # Si la categoria aun no se a detectado se agrega por primera vez y se cargan 
                     # los totales de la linea que contiene el producto de la nueva categoria
-                    if not il.product_id.categ_id.name in _existing_categories:
-                        _vals={'categoria' : il.product_id.categ_id.name,
+                    if not _categ_tmp.name in _existing_categories:
+                        _vals={'categoria' : _categ_tmp.name,
                                 'Neto' : il.price_total,
                                 'Imp. Int': _impInt,
                                 'Iva': _impIVA,
                                 'Exento' : _exento}
                         _categories.append(_vals)
-                        _existing_categories.append(il.product_id.categ_id.name)
+                        _existing_categories.append(_categ_tmp.name)
                     # En el caso de que ya se haya cargado la categoria se suman los totales del producto de dicha categoria
                     else:
                         for cate in _categories:
-                            if cate['categoria'] == il.product_id.categ_id.name:
+                            if cate['categoria'] == _categ_tmp.name:
                                 cate['Neto'] = cate['Neto'] + il.price_total
                                 cate['Imp. Int'] = cate['Imp. Int'] + _impInt
                                 cate['Iva'] = cate['Iva'] + _impIVA
