@@ -30,7 +30,7 @@ class ExtraSalesTaxReports(models.TransientModel):
                         if tax.tax_group_id.l10n_ar_vat_afip_code in ['4','5','6']:
                             #Calculo de iva si esta inluido en precio o no
                             if tax.price_include:
-                                _impIVA += il.price_subtotal / ((tax.amount /100) + 1)
+                                _impIVA += il.price_subtotal - (il.price_subtotal / ((tax.amount /100) + 1))
                             else:
                                 _impIVA += il.price_subtotal * (tax.amount /100)
                             _logger.warning('******* Impuesto IVA: {0} en el producto: {1}'.format(tax.name, il.product_id.name))
