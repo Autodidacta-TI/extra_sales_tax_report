@@ -26,16 +26,8 @@ class ExtraSalesTaxReports(models.TransientModel):
                     _exento = 0
                     
                     for tax in il.tax_ids:
-                        #Se busca si la linea tiene IVA y se guarda para luego sumar a su categoria
-                        if tax.tax_group_id.l10n_ar_vat_afip_code in ['4','5','6']:
-                            #Calculo de iva si esta inluido en precio o no
-                            if tax.price_include:
-                                _impIVA += (il.price_unit * il.quantity) - ((il.price_unit * il.quantity) / ((tax.amount /100) + 1))
-                            else:
-                                _impIVA += il.price_subtotal * (tax.amount /100)
-                            _logger.warning('******* Impuesto IVA: {0} en el producto: {1}'.format(tax.name, il.product_id.name))
                         #Se busca si la linea tiene impuestos internos y se guardan para luego sumar en su categoria
-                        elif tax.tax_group_id.l10n_ar_tribute_afip_code == '04':
+                        if tax.tax_group_id.l10n_ar_tribute_afip_code == '04':
                             #Calculo de imp int si es porcentaje
                             if tax.amount_type == 'percent':
                                 if tax.price_include:
@@ -46,6 +38,14 @@ class ExtraSalesTaxReports(models.TransientModel):
                             elif tax.amount_type == 'fixed':
                                 _impInt += tax.amount
                             _logger.warning('******* Impuesto interno: {0} en el producto: {1}'.format(tax.name, il.product_id.name))
+                        #Se busca si la linea tiene IVA y se guarda para luego sumar a su categoria
+                        elif tax.tax_group_id.l10n_ar_vat_afip_code in ['4','5','6']:
+                            #Calculo de iva si esta inluido en precio o no
+                            if tax.price_include:
+                                _impIVA += ((il.price_unit * il.quantity) - _impInt) - (((il.price_unit * il.quantity) - _impInt) / ((tax.amount /100) + 1))
+                            else:
+                                _impIVA += ((ilil.price_subtotal) - _impInt) * (tax.amount /100)
+                            _logger.warning('******* Impuesto IVA: {0} en el producto: {1}'.format(tax.name, il.product_id.name))
                         #Se busca si la linea tiene IVA Exento y se guarda para luego sumar a su categoria
                         elif tax.tax_group_id.l10n_ar_vat_afip_code == '2':
                             _exento += il.price_subtotal
