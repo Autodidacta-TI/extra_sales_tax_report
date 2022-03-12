@@ -28,5 +28,5 @@ class AccountMove(models.Model):
                                 rec.imp_int_total += rec.price_subtotal * (imp.amount /100)
                         #Calculo de imp int si es fijo
                         elif imp.amount_type == 'fixed':
-                            rec.imp_int_total += imp.amount
+                            rec.imp_int_total += imp.amount * rec.quantity
         return res
