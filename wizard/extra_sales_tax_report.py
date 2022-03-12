@@ -12,7 +12,7 @@ class ExtraSalesTaxReports(models.TransientModel):
 
     def print_report(self):
         if self.type_report == 'ivasale':
-            invoices_ids = self.env['account.move'].search([('move_type','in',['out_invoice','out_refund']),('invoice_date','>=',self.date_from),('invoice_date','<=',self.date_to)])
+            invoices_ids = self.env['account.move'].search([('state','=','posted'),('move_type','in',['out_invoice','out_refund']),('invoice_date','>=',self.date_from),('invoice_date','<=',self.date_to)])
             
             _categories = []
             _existing_categories = []
