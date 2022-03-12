@@ -18,42 +18,31 @@ class ExtraSalesTaxReports(models.TransientModel):
             _existing_categories = []
             for inv in invoices_ids:
                 for il in inv.invoice_line_ids:
-                    _logger.warning('******* lineas: {0}'.format(il.product_id.name))
 
                     #Variables utilizadas para almacenar totales de impuestos por lineas
                     _impInt = 0
                     _impIVA = 0
                     _exento = 0
+                    #Variable usada de bandera para saber si ya sumo el impuesto interno de una linea
+                    _sumoInterno = 0
                     
+                    #Primero se calcula cuanto de impuestos interno existe para luego poder calcular el iva ya que son impuestos incluidos en el precio
                     for tax in il.tax_ids:
                         #Se busca si la linea tiene impuestos internos y se guardan para luego sumar en su categoria
-                        if tax.tax_group_id.l10n_ar_tribute_afip_code == '04':
-                            #Calculo de imp int si es porcentaje
-                            if tax.amount_type == 'percent':
-                                if tax.price_include:
-                                    _impInt += (il.price_unit * il.quantity) - ((il.price_unit * il.quantity) / ((tax.amount /100) + 1))
-                                else:
-                                    _impInt += il.price_subtotal * (tax.amount /100)
-                            #Calculo de imp int si es fijo
-                            elif tax.amount_type == 'fixed':
-                                _impInt += tax.amount
-                            _logger.warning('******* Impuesto interno: {0} en el producto: {1}'.format(tax.name, il.product_id.name))
+                        if tax.tax_group_id.l10n_ar_tribute_afip_code == '04' and _sumoInterno == 0:
+                            _impInt += il.imp_int_total
+                            _sumoInterno = 1
+                    for tax in il.tax_ids:
                         #Se busca si la linea tiene IVA y se guarda para luego sumar a su categoria
-                        elif tax.tax_group_id.l10n_ar_vat_afip_code in ['4','5','6']:
+                        if tax.tax_group_id.l10n_ar_vat_afip_code in ['4','5','6']:
                             #Calculo de iva si esta inluido en precio o no
                             if tax.price_include:
                                 _impIVA += ((il.price_unit * il.quantity) - _impInt) - (((il.price_unit * il.quantity) - _impInt) / ((tax.amount /100) + 1))
                             else:
-                                _impIVA += ((ilil.price_subtotal) - _impInt) * (tax.amount /100)
-                            _logger.warning('******* Impuesto IVA: {0} en el producto: {1}'.format(tax.name, il.product_id.name))
+                                _impIVA += ((il.price_subtotal) - _impInt) * (tax.amount /100)
                         #Se busca si la linea tiene IVA Exento y se guarda para luego sumar a su categoria
                         elif tax.tax_group_id.l10n_ar_vat_afip_code == '2':
                             _exento += il.price_subtotal
-                            _logger.warning('******* Exento: {0} en el producto: {1}'.format(tax.name, il.product_id.name))
-                            
-                    _logger.warning('******* Impuesto IVA: {0}'.format(_impIVA))
-                    _logger.warning('******* Impuesto interno: {0}'.format(_impInt))
-                    _logger.warning('******* Exento: {0}'.format(_exento))
 
                     
 
@@ -74,7 +63,7 @@ class ExtraSalesTaxReports(models.TransientModel):
                     # los totales de la linea que contiene el producto de la nueva categoria
                     if not _categ_tmp.name in _existing_categories:
                         _vals={'categoria' : _categ_tmp.name,
-                                'Neto' : il.price_total,
+                                'Neto' : il.price_subtotal,
                                 'Imp. Int': _impInt,
                                 'Iva': _impIVA,
                                 'Exento' : _exento}
@@ -84,18 +73,10 @@ class ExtraSalesTaxReports(models.TransientModel):
                     else:
                         for cate in _categories:
                             if cate['categoria'] == _categ_tmp.name:
-                                cate['Neto'] = cate['Neto'] + il.price_total
+                                cate['Neto'] = cate['Neto'] + il.price_subtotal
                                 cate['Imp. Int'] = cate['Imp. Int'] + _impInt
                                 cate['Iva'] = cate['Iva'] + _impIVA
                                 cate['Exento'] = cate['Exento'] + _exento
-
-                    
-                    
-                        
-                    
-            
-            _logger.warning('******* _existing_categories: {0}'.format(_existing_categories))
-            _logger.warning('******* _categories: {0}'.format(_categories))
             data = {
                 'from_data' : self.read()[0],
                 'categories' : _categories
