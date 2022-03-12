@@ -10,6 +10,14 @@ class ExtraSalesTaxReports(models.TransientModel):
     date_from = fields.Date (string="Fecha Inicio")
     date_to = fields.Date (string="Fecha Fin")
 
+    def print_report_xml(self):
+        # redirect to /account/account_extra_sales_report to generate the excel file
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/account/account_extra_sales_report/%s' % (self.id),
+            'target': 'new',
+        }
+
     def print_report(self):
         if self.type_report == 'ivasale':
             invoices_ids = self.env['account.move'].search([('state','=','posted'),('move_type','in',['out_invoice','out_refund']),('invoice_date','>=',self.date_from),('invoice_date','<=',self.date_to)])
