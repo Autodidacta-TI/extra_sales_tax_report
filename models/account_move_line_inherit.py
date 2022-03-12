@@ -15,7 +15,6 @@ class AccountMove(models.Model):
         
         
         res = super(AccountMove, self).write(vals)
-        _logger.warning('******* Entro')
         for rec in self:
             if 'imp_int_total' not in vals:
                 rec.imp_int_total = 0
