@@ -88,9 +88,9 @@ class ExtraSalesTaxController(http.Controller):
                     #Se busca si la linea tiene impuestos internos y se guardan para luego sumar en su categoria
                     if tax.tax_group_id.l10n_ar_tribute_afip_code == '04' and _sumoInterno == 0:
                         if inv.move_type == 'out_invoice':
-                            _impInt += il.imp_int_total
+                            _impInt += round(il.imp_int_total,2)
                         else:
-                            _impInt -= il.imp_int_total
+                            _impInt -= round(il.imp_int_total,2)
                         _sumoInterno = 1
                 for tax in il.tax_ids:
                     #Se busca si la linea tiene IVA y se guarda para luego sumar a su categoria
@@ -98,14 +98,14 @@ class ExtraSalesTaxController(http.Controller):
                         #Calculo de iva si esta inluido en precio o no
                         if tax.price_include:
                             if inv.move_type == 'out_invoice':
-                                _impIVA += ((il.price_unit * il.quantity) - _impInt) - (((il.price_unit * il.quantity) - _impInt) / ((tax.amount /100) + 1))
+                                _impIVA += round(((il.price_unit * il.quantity) - _impInt) - (((il.price_unit * il.quantity) - _impInt) / ((tax.amount /100) + 1)),2)
                             else:
-                                _impIVA -= ((il.price_unit * il.quantity) + _impInt) - (((il.price_unit * il.quantity) + _impInt) / ((tax.amount /100) + 1))
+                                _impIVA -= round(((il.price_unit * il.quantity) + _impInt) - (((il.price_unit * il.quantity) + _impInt) / ((tax.amount /100) + 1)),2)
                         else:
                             if inv.move_type == 'out_invoice':
-                                _impIVA += ((il.price_subtotal) - _impInt) * (tax.amount /100)
+                                _impIVA += round(((il.price_subtotal) - _impInt) * (tax.amount /100),2)
                             else:
-                                _impIVA -= ((il.price_subtotal) + _impInt) * (tax.amount /100)
+                                _impIVA -= round(((il.price_subtotal) + _impInt) * (tax.amount /100),2)
                     #Se busca si la linea tiene IVA Exento y se guarda para luego sumar a su categoria
                     elif tax.tax_group_id.l10n_ar_vat_afip_code == '2':
                         if inv.move_type == 'out_invoice':
@@ -132,6 +132,8 @@ class ExtraSalesTaxController(http.Controller):
                     _subtotal = il.price_subtotal
                 else:
                     _subtotal = il.price_subtotal * -1
+
+                _logger.warning('***** Factura {0}  - iva: {1}'.format(inv.name, _impIVA))
 
                 if not _categ_tmp.name in _existing_categories:
                     _vals={'categoria' : _categ_tmp.name,
