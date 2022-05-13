@@ -64,8 +64,8 @@ class ExtraSalesTaxController(http.Controller):
 
         #Busca todas las facturas
         #invoices = request.env['account.move'].search([('move_type','in',['out_invoice','out_refund']), ('invoice_date','>=', wizard.start_date), ('invoice_date','<=', wizard.end_date)])
-        invoices_ids = request.env['account.move'].search([('state','=','posted'),('move_type','in',['out_invoice','out_refund']),('invoice_date','>=',wizard.date_from),('invoice_date','<=',wizard.date_to)])
-
+        company_id = request._context.get('company_id', request.env.user.company_id.id)
+        invoices_ids = request.env['account.move'].search([('company_id', '=', company_id),('state','=','posted'),('move_type','in',['out_invoice','out_refund']),('invoice_date','>=',wizard.date_from),('invoice_date','<=',wizard.date_to)])
         #Variables temporales  
         _categories = []
         _existing_categories = []
