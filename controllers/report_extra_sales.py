@@ -77,6 +77,7 @@ class ExtraSalesTaxController(http.Controller):
         for inv in invoices_ids:
             for il in inv.invoice_line_ids:
                 #Variables utilizadas para almacenar totales de impuestos por lineas
+                _subtotal = 0
                 _impInt = 0
                 _impIVA = 0
                 _exento = 0
@@ -112,7 +113,11 @@ class ExtraSalesTaxController(http.Controller):
                             _exento += il.price_subtotal
                         else:
                             _exento -= il.price_subtotal
-                
+                    if tax.tax_group_id.l10n_ar_vat_afip_code != '2':
+                        if inv.move_type == 'out_invoice':
+                            _subtotal = il.price_subtotal
+                        else:
+                            _subtotal = il.price_subtotal * -1
                 # Se obtiene categoria principal del producto
                 i = 0
                 _categ_tmp = request.env['product.category'].search([('id','=',il.product_id.categ_id.id)])
@@ -127,11 +132,7 @@ class ExtraSalesTaxController(http.Controller):
                 # Si la categoria aun no se a detectado se agrega por primera vez y se cargan 
                 # los totales de la linea que contiene el producto de la nueva categoria
 
-                _subtotal = 0
-                if inv.move_type == 'out_invoice':
-                    _subtotal = il.price_subtotal
-                else:
-                    _subtotal = il.price_subtotal * -1
+
 
                 _logger.warning('***** Factura {0}  - iva: {1}'.format(inv.name, _impIVA))
 
